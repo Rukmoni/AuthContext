@@ -9,29 +9,35 @@ It demonstrates clean architecture, context-based state management, and unit tes
 ---
 📸 Demo & 🎥 Video Walkthrough
 
+![Simulator Screen Recording - iPhone 15 Pro - 2025-09-14 at 17 57 09](https://github.com/user-attachments/assets/8ec819b8-561a-4bda-a559-b3f2baa6e643)
+
+
 ## 🛠️ Installation & Setup
 
 1️⃣ Clone the repo
 ```bash
-git clone https://github.com/your-username/auth-assessment.git
-cd auth-assessment
+git clone https://github.com/Rukmoni/AuthContext.git
+cd AuthContext
+```
 
 2️⃣ Install dependencies
 ```bash
 yarn install
 # or
 npm install
+```
 
 3️⃣ Start Metro & Run the App
 ```bash
 yarn start
 yarn ios      # for iOS simulator
 yarn android  # for Android emulator
+```
 🧪 Running Tests & Generating Coverage Badge
 
-Run tests with coverage:
 ```bash
 yarn test --coverage
+```
 
 ## 🚀 Features
 
