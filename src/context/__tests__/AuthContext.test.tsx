@@ -1,6 +1,6 @@
 import React from "react";
 import { renderHook, act, waitFor } from "@testing-library/react-native";
-import { AuthProvider, useAuth } from "../AuthContext";
+import { AuthProvider, useAuth, authReducer } from "../AuthContext";
 import * as storage from "../../services/storage";
 
 // Mock the storage service
@@ -46,10 +46,10 @@ describe("AuthContext", () => {
     });
 
     it("restores user from storage on initialization", async () => {
-      const mockUser = { 
+      const mockUser = {
         id: "1",
-        name: "John Doe", 
-        email: "john@example.com" 
+        name: "John Doe",
+        email: "john@example.com",
       };
       mockStorage.getUser.mockResolvedValueOnce(mockUser);
 
@@ -86,6 +86,7 @@ describe("AuthContext", () => {
         expect(result.current.state.error).toBeNull();
         expect(mockStorage.saveUser).toHaveBeenCalledWith(expectedUser);
       });
+      
 
       it("handles login error with invalid credentials", async () => {
         const { result } = renderHook(() => useAuth(), { wrapper });
@@ -107,6 +108,14 @@ describe("AuthContext", () => {
         expect(mockStorage.saveUser).not.toHaveBeenCalled();
       });
     });
+    describe("authReducer", () => {
+      it("returns current state for unknown action", () => {
+        const prevState = { user: null, loading: false, error: null };
+        // @ts-expect-error testing unknown action
+        const newState = authReducer(prevState, { type: "UNKNOWN" });
+        expect(newState).toEqual(prevState);
+      });
+    });
 
     describe("signup", () => {
       it("signs up successfully with valid data", async () => {
@@ -117,7 +126,11 @@ describe("AuthContext", () => {
         });
 
         await act(async () => {
-          await result.current.signup("New User", "newuser@example.com", "password123");
+          await result.current.signup(
+            "New User",
+            "newuser@example.com",
+            "password123"
+          );
         });
 
         expect(result.current.state.user?.email).toBe("newuser@example.com");
@@ -135,14 +148,20 @@ describe("AuthContext", () => {
 
         await act(async () => {
           try {
-            await result.current.signup("John Doe", "john@example.com", "password123");
+            await result.current.signup(
+              "John Doe",
+              "john@example.com",
+              "password123"
+            );
           } catch (error) {
             // Expected to throw
           }
         });
 
         expect(result.current.state.user).toBeNull();
-        expect(result.current.state.error).toBe("User with this email already exists");
+        expect(result.current.state.error).toBe(
+          "User with this email already exists"
+        );
         expect(mockStorage.saveUser).not.toHaveBeenCalled();
       });
     });
@@ -208,7 +227,9 @@ describe("AuthContext", () => {
   describe("Provider Requirements", () => {
     it("throws error when useAuth is used outside AuthProvider", () => {
       // Suppress console.error for this test
-      const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+      const consoleSpy = jest
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
 
       expect(() => {
         renderHook(() => useAuth());
@@ -234,7 +255,7 @@ describe("AuthContext", () => {
 
       // Override the login method to use our controlled promise
       const originalLogin = result.current.login;
-      jest.spyOn(result.current, 'login').mockImplementation(async () => {
+      jest.spyOn(result.current, "login").mockImplementation(async () => {
         return loginPromise;
       });
 

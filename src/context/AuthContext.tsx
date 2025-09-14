@@ -31,7 +31,7 @@ const initialState: AuthState = {
   error: null,
 };
 
-const authReducer = (state: AuthState, action: AuthAction): AuthState => {
+export const authReducer = (state: AuthState, action: AuthAction): AuthState => {
   switch (action.type) {
     case 'LOGIN_REQUEST':
     case 'SIGNUP_REQUEST':
