@@ -11,7 +11,7 @@ export default function ProfileScreen() {
     name: state.user?.name || 'User',
     email: state.user?.email || 'user@example.com',
     joinDate: 'January 2024',
-    location: 'San Francisco, CA',
+    location: 'KL, Malaysia',
   };
 
   return (

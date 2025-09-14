@@ -93,6 +93,8 @@ export default function LoginScreen() {
                     placeholderTextColor={lightTheme.colors.placeholder}
                     secureTextEntry={!showPassword}
                     editable={!state.loading}
+                    accessibilityRole="button" 
+                    testID="togglePassword"
                   />
                   <TouchableOpacity
                     style={styles.eyeIcon}
