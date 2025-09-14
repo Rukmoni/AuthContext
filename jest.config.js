@@ -1,10 +1,11 @@
 /** @type {import('jest').Config} */
 module.exports = {
-    preset: 'jest-expo',
-    transform: {
-      '^.+\\.[jt]sx?$': 'babel-jest', // let babel-jest handle JSX/TSX
-    },
-    setupFilesAfterEnv: ['@testing-library/jest-native/extend-expect'],
-    testPathIgnorePatterns: ['/node_modules/', '/.expo/', '/dist/'],
-  };
-  
+  preset: 'jest-expo',
+  transform: {
+    '^.+\\.[jt]sx?$': 'babel-jest',
+  },
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  testPathIgnorePatterns: ['/node_modules/', '/.expo/', '/dist/'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+  clearMocks: true,
+};

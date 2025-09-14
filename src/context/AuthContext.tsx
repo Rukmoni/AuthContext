@@ -5,7 +5,7 @@ import { validateEmail, validatePassword, validateName } from '../utils/validato
 // Mock users database (in-memory)
 const mockUsers: Array<User & { password: string }> = [
   { name: 'Rukmoni Nagarajan', email: 'rukmoni@example.com', password: 'password123' },
-  { name: 'Jane Smith', email: 'jane@example.com', password: 'password123' },
+  { name: 'John Doe', email: 'john@example.com', password: 'password123' },
 ];
 
 interface AuthState {
