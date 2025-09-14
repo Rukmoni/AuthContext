@@ -15,6 +15,6 @@ module.exports = {
     '!src/**/types.ts',     // ignore type-only files
     '!**/node_modules/**',
   ],
-  coverageReporters: ['text', 'lcov', 'html'], // text for CLI, html for browser view
-  coverageDirectory: 'dist/coverage',
+  coverageReporters: ['text', 'lcov', 'html',"json","json-summary"], // text for CLI, html for browser view
+  coverageDirectory: 'coverage',
 };
