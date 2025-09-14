@@ -7,6 +7,31 @@ This project is a **React Native authentication flow** with **React Navigation**
 It demonstrates clean architecture, context-based state management, and unit testing with **Jest** + **React Native Testing Library**.
 
 ---
+📸 Demo & 🎥 Video Walkthrough
+
+## 🛠️ Installation & Setup
+
+1️⃣ Clone the repo
+```bash
+git clone https://github.com/your-username/auth-assessment.git
+cd auth-assessment
+
+2️⃣ Install dependencies
+```bash
+yarn install
+# or
+npm install
+
+3️⃣ Start Metro & Run the App
+```bash
+yarn start
+yarn ios      # for iOS simulator
+yarn android  # for Android emulator
+🧪 Running Tests & Generating Coverage Badge
+
+Run tests with coverage:
+```bash
+yarn test --coverage
 
 ## 🚀 Features
 
