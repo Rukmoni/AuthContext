@@ -7,7 +7,7 @@ export default function HomeScreen() {
 
   return (
     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>Welcome to Home!</Text>
+      <Text>Profile</Text>
       <Button title="Logout" onPress={logout} />
     </View>
   );

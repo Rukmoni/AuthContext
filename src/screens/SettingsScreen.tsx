@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, Button } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 
-export default function HomeScreen() {
+export default function SettingsScreen() {
   const { logout } = useAuth();
 
   return (
