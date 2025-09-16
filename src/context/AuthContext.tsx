@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode,useCallback } from 'react';
 import { saveUser, getUser, clearUser, User } from '../services/storage';
 import { validateEmail, validatePassword, validateName } from '../utils/validators';
 
@@ -172,9 +172,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const clearError = () => {
+  const clearError = useCallback(() => {
     dispatch({ type: 'CLEAR_ERROR' });
-  };
+  }, []);
 
   return (
     <AuthContext.Provider value={{ state, login, signup, logout, clearError }}>

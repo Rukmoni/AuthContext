@@ -36,3 +36,8 @@ yarn-error.*
 *.tsbuildinfo
 
 app-example
+
+# Ignore coverage outputs
+coverage/
+.nyc_output/
+lcov-report/

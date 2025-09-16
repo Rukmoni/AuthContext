@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -43,13 +43,16 @@ export default function SignupScreen() {
     reset,
   } = useFormValidation({ schema: signupSchema });
 
-    useFocusEffect(
-      useCallback(() => {
-       
-          clearError();
-       
-      }, [])
-    );
+ 
+   useFocusEffect(
+     useCallback(() => {
+      
+       return () => {
+         clearError();
+       };
+      
+     }, [clearError])
+   );
 
   // Reset validation when component unmounts
   useEffect(() => {
@@ -72,7 +75,7 @@ export default function SignupScreen() {
       // Navigation will be handled by useEffect when state.user changes
     } catch (error) {
       // Error is already handled by the context
-      console.log("Signup error handled by context");
+      //console.log("Signup error handled by context");
     }
   };
 
@@ -132,10 +135,10 @@ export default function SignupScreen() {
                 <TextInput
                   style={getInputStyle("name")}
                   value={name}
-                  onChangeText={(text)=>{
+                  onChangeText={(text) => {
                     handleNameChange(text);
-                    handleBlur("name",text);}}
-              
+                    handleBlur("name", text);
+                  }}
                   placeholder="Enter your full name"
                   placeholderTextColor={lightTheme.colors.placeholder}
                   autoCapitalize="words"
@@ -151,14 +154,10 @@ export default function SignupScreen() {
                 <TextInput
                   style={getInputStyle("email")}
                   value={email}
-                  onChangeText={handleEmailChange}
-                  onBlur={() =>
-                    handleBlur("email", email.trim(), {
-                      name: name.trim(),
-                      email: email.trim(),
-                      password,
-                    })
-                  }
+                  onChangeText={(text) => {
+                    handleEmailChange(text);
+                    handleBlur("email", text);
+                  }}
                   placeholder="Enter your email"
                   placeholderTextColor={lightTheme.colors.placeholder}
                   keyboardType="email-address"
@@ -177,14 +176,10 @@ export default function SignupScreen() {
                   <TextInput
                     style={getPasswordInputStyle("password")}
                     value={password}
-                    onChangeText={handlePasswordChange}
-                    onBlur={() =>
-                      handleBlur("password", password, {
-                        name: name.trim(),
-                        email: email.trim(),
-                        password,
-                      })
-                    }
+                    onChangeText={(text) => {
+                      handlePasswordChange(text);
+                      handleBlur("password", text);
+                    }}
                     placeholder="Enter your password"
                     placeholderTextColor={lightTheme.colors.placeholder}
                     secureTextEntry={!showPassword}

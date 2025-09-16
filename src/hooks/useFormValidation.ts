@@ -18,12 +18,12 @@ export const useFormValidation = ({ schema, debounceMs = 300 }: UseFormValidatio
   const [errors, setErrors] = useState<ValidationState>({});
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
   const [isValid, setIsValid] = useState(false);
-  const [formData, setFormData] = useState<FormState>({}); // ✅ track latest values
+  const [formData, setFormData] = useState<FormState>({});
 
   const debounceTimeoutsRef = useRef<{ [key: string]: NodeJS.Timeout }>({});
 
   /**
-   * ✅ Validate a single field (debounced)
+   * Validate a single field (debounced)
    */
   const validateField = useCallback(
     (fieldName: string, value: string) => {
@@ -59,7 +59,7 @@ export const useFormValidation = ({ schema, debounceMs = 300 }: UseFormValidatio
   );
 
   /**
-   * ✅ Validate entire form (e.g. on submit)
+   * Validate entire form (e.g. on submit)
    */
   const validateForm = useCallback(
     (formData: FormState) => {
@@ -92,7 +92,7 @@ export const useFormValidation = ({ schema, debounceMs = 300 }: UseFormValidatio
   );
 
   /**
-   * ✅ Handle field blur
+   * Handle field blur
    */
   const handleBlur = useCallback(
     (fieldName: string, value: string) => {
@@ -103,7 +103,7 @@ export const useFormValidation = ({ schema, debounceMs = 300 }: UseFormValidatio
   );
 
   /**
-   * ✅ Track validity: all required fields filled + no errors
+   * Track validity: all required fields filled + no errors
    */
   useEffect(() => {
     const hasErrors = Object.values(errors).some(err => err !== null);
