@@ -3,6 +3,9 @@ import { Text } from "react-native";
 import { render } from "@testing-library/react-native";
 import App from "../App";
 
+// Manually define the Expo environment variable to prevent the warning.
+process.env.EXPO_OS = "web";
+
 // Mock AuthProvider (just renders children)
 jest.mock("@/context/AuthContext", () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) => (
@@ -10,7 +13,6 @@ jest.mock("@/context/AuthContext", () => ({
   ),
 }));
 
-// Mock AppNavigator (so we don’t load full navigation stack)
 // Mock AppNavigator (so we don’t load full navigation stack)
 jest.mock("@/navigation/AppNavigator", () => {
   const React = require("react");

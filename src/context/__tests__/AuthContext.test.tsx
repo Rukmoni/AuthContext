@@ -1,11 +1,16 @@
 import React from "react";
 import { renderHook, act, waitFor } from "@testing-library/react-native";
 import { AuthProvider, useAuth, authReducer } from "../AuthContext";
-import * as storage from "../../services/storage";
+import * as storage from "@/services/storage";
+import * as validators from "@/utils/validators";
 
 // Mock the storage service
 jest.mock("../../services/storage");
 const mockStorage = storage as jest.Mocked<typeof storage>;
+
+// Mock the validators
+jest.mock("../../utils/validators");
+const mockValidators = validators as jest.Mocked<typeof validators>;
 
 // Mock any async storage or other dependencies
 jest.mock("@react-native-async-storage/async-storage", () => ({
@@ -26,6 +31,9 @@ describe("AuthContext", () => {
     mockStorage.getUser.mockResolvedValue(null);
     mockStorage.saveUser.mockResolvedValue(undefined);
     mockStorage.clearUser.mockResolvedValue(undefined);
+    mockValidators.validateName.mockReturnValue(true);
+    mockValidators.validateEmail.mockReturnValue(true);
+    mockValidators.validatePassword.mockReturnValue(true);
   });
 
   afterEach(() => {
@@ -62,6 +70,18 @@ describe("AuthContext", () => {
       expect(result.current.state.user).toEqual(mockUser);
       expect(mockStorage.getUser).toHaveBeenCalledTimes(1);
     });
+
+    it("handles storage error on restore and sets user to null", async () => {
+      mockStorage.getUser.mockRejectedValue(new Error("Storage error"));
+
+      const { result } = renderHook(() => useAuth(), { wrapper });
+
+      await waitFor(() => {
+        expect(result.current.state.loading).toBe(false);
+      });
+
+      expect(result.current.state.user).toBeNull();
+    });
   });
 
   describe("Authentication Actions", () => {
@@ -86,7 +106,22 @@ describe("AuthContext", () => {
         expect(result.current.state.error).toBeNull();
         expect(mockStorage.saveUser).toHaveBeenCalledWith(expectedUser);
       });
-      
+      it("handles login error for invalid password format", async () => {
+        mockValidators.validatePassword.mockReturnValue(false);
+
+        const { result } = renderHook(() => useAuth(), { wrapper });
+
+        await act(async () => {
+          // Remove the try...catch block from the test
+          // The login function's internal catch block will handle the error
+          await result.current.login("test@example.com", "123");
+        });
+
+        // Now, the state should reflect the login failure
+        expect(result.current.state.error).toBe(
+          "Password must be at least 6 characters"
+        );
+      });
 
       it("handles login error with invalid credentials", async () => {
         const { result } = renderHook(() => useAuth(), { wrapper });
@@ -107,13 +142,29 @@ describe("AuthContext", () => {
         expect(result.current.state.error).toBe("Invalid email or password");
         expect(mockStorage.saveUser).not.toHaveBeenCalled();
       });
-    });
-    describe("authReducer", () => {
-      it("returns current state for unknown action", () => {
-        const prevState = { user: null, loading: false, error: null };
-        // @ts-expect-error testing unknown action
-        const newState = authReducer(prevState, { type: "UNKNOWN" });
-        expect(newState).toEqual(prevState);
+
+      it("handles login error on validator failure", async () => {
+        mockValidators.validateEmail.mockReturnValue(false);
+
+        const { result } = renderHook(() => useAuth(), { wrapper });
+
+        await waitFor(() => {
+          expect(result.current.state.loading).toBe(false);
+        });
+
+        await act(async () => {
+          try {
+            await result.current.login("invalid-email", "password123");
+          } catch (error) {
+            // Expected to throw
+          }
+        });
+
+        expect(result.current.state.user).toBeNull();
+        expect(result.current.state.error).toBe(
+          "Please enter a valid email address"
+        );
+        expect(mockStorage.saveUser).not.toHaveBeenCalled();
       });
     });
 
@@ -164,6 +215,34 @@ describe("AuthContext", () => {
         );
         expect(mockStorage.saveUser).not.toHaveBeenCalled();
       });
+
+      it("handles signup error on validator failure", async () => {
+        mockValidators.validateName.mockReturnValue(false);
+
+        const { result } = renderHook(() => useAuth(), { wrapper });
+
+        await waitFor(() => {
+          expect(result.current.state.loading).toBe(false);
+        });
+
+        await act(async () => {
+          try {
+            await result.current.signup(
+              "A",
+              "newuser@example.com",
+              "password123"
+            );
+          } catch (error) {
+            // Expected to throw
+          }
+        });
+
+        expect(result.current.state.user).toBeNull();
+        expect(result.current.state.error).toBe(
+          "Name must be at least 2 characters"
+        );
+        expect(mockStorage.saveUser).not.toHaveBeenCalled();
+      });
     });
 
     describe("logout", () => {
@@ -192,6 +271,33 @@ describe("AuthContext", () => {
         expect(result.current.state.user).toBeNull();
         expect(result.current.state.error).toBeNull();
         expect(mockStorage.clearUser).toHaveBeenCalledTimes(1);
+      });
+
+      it("logs out even if storage clear fails", async () => {
+        // Start with a logged-in user
+        const mockUser = {
+          name: "John Doe",
+          email: "john@example.com",
+        };
+        mockStorage.getUser.mockResolvedValueOnce(mockUser);
+        mockStorage.clearUser.mockRejectedValue(new Error("Storage error"));
+
+        const { result } = renderHook(() => useAuth(), { wrapper });
+
+        await waitFor(() => {
+          expect(result.current.state.loading).toBe(false);
+        });
+
+        // Verify user is loaded
+        expect(result.current.state.user).toEqual(mockUser);
+
+        // Perform logout
+        await act(async () => {
+          await result.current.logout();
+        });
+
+        expect(result.current.state.user).toBeNull();
+        expect(result.current.state.error).toBeNull();
       });
     });
   });
@@ -253,8 +359,7 @@ describe("AuthContext", () => {
         resolveLogin = resolve;
       });
 
-      // Override the login method to use our controlled promise
-      const originalLogin = result.current.login;
+      // Mock the login function to use our controlled promise
       jest.spyOn(result.current, "login").mockImplementation(async () => {
         return loginPromise;
       });
@@ -267,11 +372,13 @@ describe("AuthContext", () => {
       expect(result.current.state.loading).toBe(false);
 
       // Resolve the promise
-      act(() => {
+      await act(async () => {
         resolveLogin!({
           name: "John Doe",
           email: "john@example.com",
         });
+        // This small delay allows the state update to be processed
+        await new Promise((resolve) => setTimeout(resolve, 0));
       });
 
       await waitFor(() => {

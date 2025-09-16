@@ -7,11 +7,8 @@ import { lightTheme } from "./theme";
 
 export default function App() {
   return (
-    <PaperProvider theme={lightTheme}>
-      <AuthProvider>
+    <AuthProvider>
       <AppNavigator />
-      </AuthProvider>
-      
-    </PaperProvider>
+    </AuthProvider>
   );
 }

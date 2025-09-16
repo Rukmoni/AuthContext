@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -9,50 +9,96 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Eye, EyeOff } from 'lucide-react-native';
-import { useAuth } from '../context/AuthContext';
-import LoginFooter from '@/components/LoginFooter';
-import { lightTheme } from '../theme';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Eye, EyeOff } from "lucide-react-native";
+import { useAuth } from "../context/AuthContext";
+import LoginFooter from "@/components/LoginFooter";
+import { lightTheme } from "../theme";
+import { useFormValidation } from "@/hooks/useFormValidation";
+import { loginSchema, LoginFormData } from "@/schemas/authSchemas";
 
 export default function LoginScreen() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { state, login, clearError } = useAuth();
 
+  const {
+    errors,
+    touched,
+    isValid,
+    handleBlur,
+    validateForm,
+    clearError: clearFieldError,
+    reset,
+  } = useFormValidation({ schema: loginSchema });
 
-
-  // Clear error when component mounts or inputs change
+  // Clear auth error when component mounts
   useEffect(() => {
     if (state.error) {
       clearError();
     }
-  }, [email, password]);
+  }, []); // Only run on mount
+
+  // Clear field errors when user starts typing
+  useEffect(() => {
+    if (email && errors.email) {
+      clearFieldError("email");
+    }
+  }, [email]); // Remove errors.email and clearFieldError from dependencies
+
+  useEffect(() => {
+    if (password && errors.password) {
+      clearFieldError("password");
+    }
+  }, [password]); // Remove errors.password and clearFieldError from dependencies
+
+  // Reset validation when component unmounts
+  useEffect(() => {
+    return () => reset();
+  }, [reset]);
 
   const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Please fill in all fields');
+    const formData: LoginFormData = { email: email.trim(), password };
+
+    if (!validateForm(formData)) {
       return;
     }
 
     try {
-      await login(email.trim(), password);
+      await login(formData.email, formData.password);
       // Navigation will be handled by useEffect when state.user changes
     } catch (error) {
       // Error is already handled by the context
-      console.log('Login error handled by context');
+      console.log("Login error handled by context");
     }
   };
 
-  const togglePasswordVisibility = () => {
+  const togglePasswordVisibility = useCallback(() => {
     setShowPassword(!showPassword);
-  };
+  }, [showPassword]);
+
+  const getInputStyle = useCallback(
+    (fieldName: string) => [
+      styles.input,
+      touched[fieldName] && errors[fieldName] && styles.inputError,
+    ],
+    [touched, errors]
+  );
+
+  const getPasswordInputStyle = useCallback(
+    (fieldName: string) => [
+      styles.passwordInput,
+      touched[fieldName] && errors[fieldName] && styles.inputError,
+    ],
+    [touched, errors]
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardView}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -70,9 +116,15 @@ export default function LoginScreen() {
               <View style={styles.inputContainer}>
                 <Text style={styles.label}>Email</Text>
                 <TextInput
-                  style={styles.input}
+                  style={getInputStyle("email")}
                   value={email}
                   onChangeText={setEmail}
+                  onBlur={() =>
+                    handleBlur("email", email.trim(), {
+                      email: email.trim(),
+                      password,
+                    })
+                  }
                   placeholder="Enter your email"
                   placeholderTextColor={lightTheme.colors.placeholder}
                   keyboardType="email-address"
@@ -80,52 +132,67 @@ export default function LoginScreen() {
                   autoCorrect={false}
                   editable={!state.loading}
                 />
+                {touched.email && errors.email && (
+                  <Text style={styles.fieldError}>{errors.email}</Text>
+                )}
               </View>
 
               <View style={styles.inputContainer}>
                 <Text style={styles.label}>Password</Text>
                 <View style={styles.passwordContainer}>
                   <TextInput
-                    style={styles.passwordInput}
+                    style={getPasswordInputStyle("password")}
                     value={password}
                     onChangeText={setPassword}
+                    onBlur={() =>
+                      handleBlur("password", password, {
+                        email: email.trim(),
+                        password,
+                      })
+                    }
                     placeholder="Enter your password"
                     placeholderTextColor={lightTheme.colors.placeholder}
                     secureTextEntry={!showPassword}
                     editable={!state.loading}
-                    accessibilityRole="button" 
-                    testID="togglePassword"
                   />
                   <TouchableOpacity
                     style={styles.eyeIcon}
                     onPress={togglePasswordVisibility}
                     disabled={state.loading}
+                    accessibilityRole="button" 
+                    accessibilityLabel="Toggle password visibility"
                   >
                     {showPassword ? (
-                      <Eye size={20} color={lightTheme.colors.placeholder} />
-                    ) : (
                       <EyeOff size={20} color={lightTheme.colors.placeholder} />
+                    ) : (
+                      <Eye size={20} color={lightTheme.colors.placeholder} />
                     )}
                   </TouchableOpacity>
                 </View>
+                {touched.password && errors.password && (
+                  <Text style={styles.fieldError}>{errors.password}</Text>
+                )}
               </View>
 
               <TouchableOpacity
-                style={[styles.button, state.loading && styles.buttonDisabled]}
+                style={[
+                  styles.button,
+                  (state.loading || !isValid) && styles.buttonDisabled,
+                ]}
                 onPress={handleLogin}
-                disabled={state.loading}
+                disabled={state.loading || !isValid}
               >
                 <Text style={styles.buttonText}>
-                  {state.loading ? 'Signing In...' : 'Sign In'}
+                  {state.loading ? "Signing In..." : "Sign In"}
                 </Text>
               </TouchableOpacity>
             </View>
-            <LoginFooter loading={state.loading} />
 
+            <LoginFooter loading={state.loading} />
 
             <View style={styles.demoCredentials}>
               <Text style={styles.demoTitle}>Demo Credentials:</Text>
-              <Text style={styles.demoText}>Email: rukmoni@example.com</Text>
+              <Text style={styles.demoText}>Email: john@example.com</Text>
               <Text style={styles.demoText}>Password: password123</Text>
             </View>
           </View>
@@ -149,33 +216,33 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     padding: 24,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   title: {
-    fontSize: lightTheme.typography.sizes['3xl'],
+    fontSize: lightTheme.typography.sizes["3xl"],
     fontWeight: lightTheme.typography.weights.bold,
     color: lightTheme.colors.text,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: lightTheme.typography.sizes.lg,
     color: lightTheme.colors.placeholder,
-    textAlign: 'center',
+    textAlign: "center",
     marginBottom: 32,
   },
   errorContainer: {
-    backgroundColor: '#FEF2F2',
+    backgroundColor: "#FEF2F2",
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: '#FECACA',
+    borderColor: "#FECACA",
   },
   errorText: {
     color: lightTheme.colors.error,
     fontSize: lightTheme.typography.sizes.sm,
-    textAlign: 'center',
+    textAlign: "center",
   },
   form: {
     marginBottom: 32,
@@ -198,8 +265,17 @@ const styles = StyleSheet.create({
     color: lightTheme.colors.text,
     backgroundColor: lightTheme.colors.surface,
   },
+  inputError: {
+    borderColor: lightTheme.colors.error,
+    borderWidth: 2,
+  },
+  fieldError: {
+    color: lightTheme.colors.error,
+    fontSize: lightTheme.typography.sizes.sm,
+    marginTop: 4,
+  },
   passwordContainer: {
-    position: 'relative',
+    position: "relative",
   },
   passwordInput: {
     borderWidth: 1,
@@ -212,7 +288,7 @@ const styles = StyleSheet.create({
     backgroundColor: lightTheme.colors.surface,
   },
   eyeIcon: {
-    position: 'absolute',
+    position: "absolute",
     right: 16,
     top: 16,
     padding: 2,
@@ -221,21 +297,21 @@ const styles = StyleSheet.create({
     backgroundColor: lightTheme.colors.primary,
     padding: 16,
     borderRadius: 8,
-    alignItems: 'center',
+    alignItems: "center",
     marginTop: 8,
   },
   buttonDisabled: {
     opacity: 0.6,
   },
   buttonText: {
-    color: 'white',
+    color: "white",
     fontSize: lightTheme.typography.sizes.base,
     fontWeight: lightTheme.typography.weights.semibold,
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   footerText: {
     fontSize: lightTheme.typography.sizes.base,
@@ -266,6 +342,6 @@ const styles = StyleSheet.create({
   demoText: {
     fontSize: lightTheme.typography.sizes.sm,
     color: lightTheme.colors.placeholder,
-    fontFamily: 'monospace',
+    fontFamily: "monospace",
   },
 });

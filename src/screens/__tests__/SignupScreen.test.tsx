@@ -16,6 +16,19 @@ jest.mock("@react-navigation/native", () => ({
   useNavigation: jest.fn(),
 }));
 
+// Mock useFormValidation to isolate its behavior
+jest.mock("@/hooks/useFormValidation", () => ({
+  useFormValidation: jest.fn(() => ({
+    errors: {},
+    touched: {},
+    isValid: true,
+    handleBlur: jest.fn(),
+    validateForm: jest.fn(() => true),
+    clearError: jest.fn(),
+    reset: jest.fn(),
+  })),
+}));
+
 describe("SignupScreen", () => {
   const mockSignup = jest.fn();
   const mockClearError = jest.fn();
@@ -38,11 +51,13 @@ describe("SignupScreen", () => {
   });
 
   it("renders all form fields and button", () => {
-    const { getByPlaceholderText, getByText } = setup();
+    const { getByPlaceholderText, getByText, getByRole } = setup();
 
     expect(getByPlaceholderText(/Enter your full name/i)).toBeTruthy();
     expect(getByPlaceholderText(/Enter your email/i)).toBeTruthy();
     expect(getByPlaceholderText(/Enter your password/i)).toBeTruthy();
+    expect(getByRole("button", { name: /Create Account/i })).toBeTruthy();
+    expect(getByText(/Sign In/i)).toBeTruthy();
   });
 
   it("shows error when state.error is present", () => {
@@ -50,7 +65,7 @@ describe("SignupScreen", () => {
     expect(getByText(/Something went wrong/i)).toBeTruthy();
   });
 
-  it("calls clearError on mount and input change", () => {
+  it("calls clearError from context on input change", () => {
     const { getByPlaceholderText } = setup({ error: "Some error" });
 
     fireEvent.changeText(getByPlaceholderText(/Enter your full name/i), "John Doe");
@@ -63,23 +78,11 @@ describe("SignupScreen", () => {
     const passwordInput = getByPlaceholderText(/Enter your password/i);
     expect(passwordInput.props.secureTextEntry).toBe(true);
 
-    const eyeButton = getByLabelText(/Show password/i);
+    const eyeButton = getByLabelText("Toggle password visibility");
     fireEvent.press(eyeButton);
 
     // After pressing, secureTextEntry should toggle
     expect(passwordInput.props.secureTextEntry).toBe(false);
-  });
-
-  it("shows alert when fields are empty", () => {
-    const alertSpy = jest.spyOn(Alert, "alert").mockImplementation(() => {}); 
-
-    const { getByRole } = setup();
-  
-    fireEvent.press(getByRole("button", { name: /Create Account/i }));
-  
-    expect(alertSpy).toHaveBeenCalledWith("Error", "Please fill in all fields");
-  
-    alertSpy.mockRestore();;
   });
 
   it("calls signup with trimmed values when form is valid", async () => {

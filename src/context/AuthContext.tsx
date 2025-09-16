@@ -87,7 +87,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const user = await getUser();
       dispatch({ type: 'RESTORE_USER', payload: user });
     } catch (error) {
-      console.error('Error restoring user:', error);
       dispatch({ type: 'RESTORE_USER', payload: null });
     }
   };
@@ -108,7 +107,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Simulate API delay
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Check credentials against mock database
       const user = mockUsers.find(u => u.email === email && u.password === password);
       
       if (!user) {
@@ -151,7 +149,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         throw new Error('User with this email already exists');
       }
 
-      // Add user to mock database
+  
       const newUser = { name, email, password };
       mockUsers.push(newUser);
 
@@ -170,8 +168,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await clearUser();
       dispatch({ type: 'LOGOUT' });
     } catch (error) {
-      console.error('Error during logout:', error);
-      // Even if clearing storage fails, we should still logout the user
       dispatch({ type: 'LOGOUT' });
     }
   };

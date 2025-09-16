@@ -1,27 +1,45 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import { Alert } from 'react-native';
 import LoginScreen from '../LoginScreen';
 import { useAuth } from '@/context/AuthContext';
+import { useFormValidation } from '@/hooks/useFormValidation'; // Import useFormValidation
 
 // Mock the useAuth hook
 jest.mock('@/context/AuthContext', () => ({
     useAuth: jest.fn(),
-  }));
+}));
+
+// Mock useFormValidation to isolate its behavior
+jest.mock('@/hooks/useFormValidation', () => ({
+  useFormValidation: jest.fn(() => ({
+    errors: {},
+    touched: {},
+    isValid: true,
+    handleBlur: jest.fn(),
+    validateForm: jest.fn(() => true),
+    clearError: jest.fn(),
+    reset: jest.fn(),
+  })),
+}));
 
 // Mock LoginFooter (to keep test lightweight)
 jest.mock('@/components/LoginFooter', () => {
   return () => <></>;
 });
 
-const mockLogin = jest.fn().mockResolvedValue({});
-(useAuth as jest.Mock).mockReturnValue({
-  state: { error: null, loading: false },
-  login: mockLogin,
-  clearError: jest.fn(),
-});
-
 describe('LoginScreen', () => {
+  const mockLogin = jest.fn();
+  const mockClearError = jest.fn();
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (useAuth as jest.Mock).mockReturnValue({
+      state: { error: null, loading: false },
+      login: mockLogin,
+      clearError: mockClearError,
+    });
+  });
+
   it('renders correctly with title and inputs', () => {
     const { getByText, getByPlaceholderText } = render(<LoginScreen />);
 
@@ -31,24 +49,7 @@ describe('LoginScreen', () => {
     expect(getByPlaceholderText('Enter your password')).toBeTruthy();
   });
 
-  it('shows error alert when fields are empty', () => {
-    const alertSpy = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
-    const { getByText } = render(<LoginScreen />);
-
-    fireEvent.press(getByText('Sign In'));
-    expect(alertSpy).toHaveBeenCalledWith('Error', 'Please fill in all fields');
-
-    alertSpy.mockRestore();
-  });
-
   it('calls login with email and password', async () => {
-    const mockLogin = jest.fn().mockResolvedValueOnce({});
-    (useAuth as jest.Mock).mockReturnValue({
-        state: { error: null, loading: false },
-        login: mockLogin,
-        clearError: jest.fn(),
-      });
-
     const { getByPlaceholderText, getByText } = render(<LoginScreen />);
 
     fireEvent.changeText(getByPlaceholderText('Enter your email'), 'test@example.com');
@@ -66,10 +67,10 @@ describe('LoginScreen', () => {
     const passwordInput = getByPlaceholderText('Enter your password');
     expect(passwordInput.props.secureTextEntry).toBe(true);
 
-    const eyeButton = getByRole('button');
+    const eyeButton = getByRole('button', { name: /toggle password visibility/i });
     fireEvent.press(eyeButton);
 
     // After pressing, secureTextEntry should flip
-    expect(passwordInput.props.secureTextEntry).toBe(true);
+    expect(passwordInput.props.secureTextEntry).toBe(false);
   });
 });
