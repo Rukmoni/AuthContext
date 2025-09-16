@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">16% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>4/25</span>
+                <span class='fraction'>25/25</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/16</span>
+                <span class='fraction'>16/16</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">21.05% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>4/19</span>
+                <span class='fraction'>19/19</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -93,65 +93,65 @@
 <a name='L28'></a><a href='#L28'>28</a>
 <a name='L29'></a><a href='#L29'>29</a>
 <a name='L30'></a><a href='#L30'>30</a>
-<a name='L31'></a><a href='#L31'>31</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L31'></a><a href='#L31'>31</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">12x</span>
+<span class="cline-any cline-yes">12x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">8x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">9x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">13x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">export const validateEmail = <span class="fstat-no" title="function not covered" >(e</span>mail: string): boolean =&gt; {
-    const emailRegex = <span class="cstat-no" title="statement not covered" >/^[^\s@]+@[^\s@]+\.[^\s@]+$/;</span>
-<span class="cstat-no" title="statement not covered" >    return emailRegex.test(email);</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">export const validateEmail = (email: string): boolean =&gt; {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
   
-  export const validatePassword = <span class="fstat-no" title="function not covered" >(p</span>assword: string): boolean =&gt; {
-<span class="cstat-no" title="statement not covered" >    return password.length &gt;= 6;</span>
+  export const validatePassword = (password: string): boolean =&gt; {
+    return password.length &gt;= 6;
   };
   
-  export const validateName = <span class="fstat-no" title="function not covered" >(n</span>ame: string): boolean =&gt; {
-<span class="cstat-no" title="statement not covered" >    return name.trim().length &gt;= 2;</span>
+  export const validateName = (name: string): boolean =&gt; {
+    return name.trim().length &gt;= 2;
   };
   
-  export const getValidationError = <span class="fstat-no" title="function not covered" >(f</span>ield: string, value: string): string | null =&gt; {
-<span class="cstat-no" title="statement not covered" >    switch (field) {</span>
+  export const getValidationError = (field: string, value: string): string | null =&gt; {
+    switch (field) {
       case 'email':
-<span class="cstat-no" title="statement not covered" >        if (!value.trim()) <span class="cstat-no" title="statement not covered" >return 'Email is required';</span></span>
-<span class="cstat-no" title="statement not covered" >        if (!validateEmail(value)) <span class="cstat-no" title="statement not covered" >return 'Please enter a valid email address';</span></span>
-<span class="cstat-no" title="statement not covered" >        return null;</span>
+        if (!value.trim()) return 'Email is required';
+        if (!validateEmail(value)) return 'Please enter a valid email address';
+        return null;
       case 'password':
-<span class="cstat-no" title="statement not covered" >        if (!value) <span class="cstat-no" title="statement not covered" >return 'Password is required';</span></span>
-<span class="cstat-no" title="statement not covered" >        if (!validatePassword(value)) <span class="cstat-no" title="statement not covered" >return 'Password must be at least 6 characters';</span></span>
-<span class="cstat-no" title="statement not covered" >        return null;</span>
+        if (!value) return 'Password is required';
+        if (!validatePassword(value)) return 'Password must be at least 6 characters';
+        return null;
       case 'name':
-<span class="cstat-no" title="statement not covered" >        if (!value.trim()) <span class="cstat-no" title="statement not covered" >return 'Name is required';</span></span>
-<span class="cstat-no" title="statement not covered" >        if (!validateName(value)) <span class="cstat-no" title="statement not covered" >return 'Name must be at least 2 characters';</span></span>
-<span class="cstat-no" title="statement not covered" >        return null;</span>
+        if (!value.trim()) return 'Name is required';
+        if (!validateName(value)) return 'Name must be at least 2 characters';
+        return null;
       default:
-<span class="cstat-no" title="statement not covered" >        return null;</span>
+        return null;
     }
   };</pre></td></tr></table></pre>
 
@@ -160,7 +160,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-09-16T04:46:22.676Z
+                at 2025-09-16T07:24:19.339Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

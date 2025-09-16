@@ -10,6 +10,7 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Eye, EyeOff } from "lucide-react-native";
 import { useAuth } from "../context/AuthContext";
@@ -34,12 +35,16 @@ export default function LoginScreen() {
     reset,
   } = useFormValidation({ schema: loginSchema });
 
-  // Clear auth error when component mounts
-  useEffect(() => {
-    if (state.error) {
-      clearError();
-    }
-  }, []); // Only run on mount
+  useFocusEffect(
+    useCallback(() => {
+     
+      return () => {
+        clearError();
+      };
+     
+    }, [clearError])
+  );
+  
 
   // Clear field errors when user starts typing
   useEffect(() => {
@@ -118,13 +123,10 @@ export default function LoginScreen() {
                 <TextInput
                   style={getInputStyle("email")}
                   value={email}
-                  onChangeText={setEmail}
-                  onBlur={() =>
-                    handleBlur("email", email.trim(), {
-                      email: email.trim(),
-                      password,
-                    })
-                  }
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    handleBlur("email", text.trim());
+                  }}
                   placeholder="Enter your email"
                   placeholderTextColor={lightTheme.colors.placeholder}
                   keyboardType="email-address"
@@ -143,13 +145,10 @@ export default function LoginScreen() {
                   <TextInput
                     style={getPasswordInputStyle("password")}
                     value={password}
-                    onChangeText={setPassword}
-                    onBlur={() =>
-                      handleBlur("password", password, {
-                        email: email.trim(),
-                        password,
-                      })
-                    }
+                    onChangeText={(text) => {
+                      setPassword(text);
+                      handleBlur("password", text);
+                    }}
                     placeholder="Enter your password"
                     placeholderTextColor={lightTheme.colors.placeholder}
                     secureTextEntry={!showPassword}

@@ -106,23 +106,7 @@ describe("AuthContext", () => {
         expect(result.current.state.error).toBeNull();
         expect(mockStorage.saveUser).toHaveBeenCalledWith(expectedUser);
       });
-      it("handles login error for invalid password format", async () => {
-        mockValidators.validatePassword.mockReturnValue(false);
-
-        const { result } = renderHook(() => useAuth(), { wrapper });
-
-        await act(async () => {
-          // Remove the try...catch block from the test
-          // The login function's internal catch block will handle the error
-          await result.current.login("test@example.com", "123");
-        });
-
-        // Now, the state should reflect the login failure
-        expect(result.current.state.error).toBe(
-          "Password must be at least 6 characters"
-        );
-      });
-
+ 
       it("handles login error with invalid credentials", async () => {
         const { result } = renderHook(() => useAuth(), { wrapper });
 

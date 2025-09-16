@@ -3,6 +3,7 @@ import { render, fireEvent, waitFor } from "@testing-library/react-native";
 import SignupScreen from "../SignupScreen";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigation } from "@react-navigation/native";
+import { NavigationContainer } from "@react-navigation/native";
 import { Alert } from "react-native";
 
 // ✅ Mock useAuth to control state + signup behavior
@@ -34,6 +35,9 @@ describe("SignupScreen", () => {
   const mockClearError = jest.fn();
   const mockNavigate = jest.fn();
 
+  const renderWithNav = (ui: React.ReactElement) => {
+    return render(<NavigationContainer>{ui}</NavigationContainer>);
+  };
   const setup = (customState = {}) => {
     (useAuth as jest.Mock).mockReturnValue({
       state: { user: null, loading: false, error: null, ...customState },
@@ -43,7 +47,7 @@ describe("SignupScreen", () => {
 
     (useNavigation as jest.Mock).mockReturnValue({ navigate: mockNavigate });
 
-    return render(<SignupScreen />);
+    return renderWithNav(<SignupScreen />);
   };
 
   beforeEach(() => {

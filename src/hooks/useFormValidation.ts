@@ -18,6 +18,7 @@ export const useFormValidation = ({ schema, debounceMs = 300 }: UseFormValidatio
   const [errors, setErrors] = useState<ValidationState>({});
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
   const [isValid, setIsValid] = useState(false);
+  const [formData, setFormData] = useState<FormState>({}); // ✅ track latest values
 
   const debounceTimeoutsRef = useRef<{ [key: string]: NodeJS.Timeout }>({});
 
@@ -25,7 +26,9 @@ export const useFormValidation = ({ schema, debounceMs = 300 }: UseFormValidatio
    * ✅ Validate a single field (debounced)
    */
   const validateField = useCallback(
-    (fieldName: string, value: string, fullFormData: FormState) => {
+    (fieldName: string, value: string) => {
+      setFormData(prev => ({ ...prev, [fieldName]: value })); // keep formData updated
+
       if (debounceTimeoutsRef.current[fieldName]) {
         clearTimeout(debounceTimeoutsRef.current[fieldName]);
       }
@@ -54,12 +57,13 @@ export const useFormValidation = ({ schema, debounceMs = 300 }: UseFormValidatio
     },
     [schema, debounceMs]
   );
-  
+
   /**
    * ✅ Validate entire form (e.g. on submit)
    */
   const validateForm = useCallback(
     (formData: FormState) => {
+      setFormData(formData);
       try {
         schema.parse(formData);
         setErrors({});
@@ -91,26 +95,28 @@ export const useFormValidation = ({ schema, debounceMs = 300 }: UseFormValidatio
    * ✅ Handle field blur
    */
   const handleBlur = useCallback(
-    (fieldName: string, value: string, fullFormData: FormState) => {
+    (fieldName: string, value: string) => {
       setTouched(prev => ({ ...prev, [fieldName]: true }));
-      validateField(fieldName, value, fullFormData);
+      validateField(fieldName, value);
     },
     [validateField]
   );
-  
+
   /**
-   * Track validity whenever errors or touched change
+   * ✅ Track validity: all required fields filled + no errors
    */
   useEffect(() => {
     const hasErrors = Object.values(errors).some(err => err !== null);
-    
-    // Check if schema.shape exists before accessing it
-    const allTouched = schema.shape 
-      ? Object.keys(schema.shape).every(field => touched[field])
+
+    const allFieldsFilled = schema instanceof z.ZodObject
+      ? Object.keys(schema.shape).every(field => {
+          const value = formData[field];
+          return value !== undefined && value !== null && value.toString().trim() !== '';
+        })
       : false;
-      
-    setIsValid(!hasErrors && allTouched);
-  }, [errors, touched, schema]);
+
+    setIsValid(!hasErrors && allFieldsFilled);
+  }, [errors, formData, schema]);
 
   /**
    * Clear error for a field
@@ -127,6 +133,7 @@ export const useFormValidation = ({ schema, debounceMs = 300 }: UseFormValidatio
     debounceTimeoutsRef.current = {};
     setErrors({});
     setTouched({});
+    setFormData({});
     setIsValid(false);
   }, []);
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useCallback } from "react";
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Eye, EyeOff } from "lucide-react-native";
 import { useAuth } from "../context/AuthContext";
@@ -41,6 +42,14 @@ export default function SignupScreen() {
     clearError: clearFieldError,
     reset,
   } = useFormValidation({ schema: signupSchema });
+
+    useFocusEffect(
+      useCallback(() => {
+       
+          clearError();
+       
+      }, [])
+    );
 
   // Reset validation when component unmounts
   useEffect(() => {
@@ -123,14 +132,10 @@ export default function SignupScreen() {
                 <TextInput
                   style={getInputStyle("name")}
                   value={name}
-                  onChangeText={handleNameChange}
-                  onBlur={() =>
-                    handleBlur("name", name.trim(), {
-                      name: name.trim(),
-                      email: email.trim(),
-                      password,
-                    })
-                  }
+                  onChangeText={(text)=>{
+                    handleNameChange(text);
+                    handleBlur("name",text);}}
+              
                   placeholder="Enter your full name"
                   placeholderTextColor={lightTheme.colors.placeholder}
                   autoCapitalize="words"
